@@ -1,0 +1,102 @@
+extends layout
+block extraHeader
+   //link(rel="stylesheet" href="/maps/documentation/javascript/demos/demos.css")
+
+block style
+    style.
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        /*#messages li:nth-child(odd) {*/
+            /*background: #eee;*/
+        /*}*/
+
+block content
+    if (user)
+        p#username=user.username
+        a(href='/users/logout') Logout
+    ul#messages
+    div(id="map")
+    form(action="")
+        input#m(autocomplete="off" required)
+        button Send
+
+block script
+    script(src="https://code.jquery.com/jquery-1.11.1.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js")
+    script.
+        var username = $('#username').text()
+        //console.log(username)
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+        var socket = io();
+        var textColor = getRandomColor();
+        $('form').submit(function(){
+            socket.emit('chat', { msg : $('#m').val(), color:textColor});
+            $('#m').val('');
+            return false;
+        })
+        socket.on('chat broadcast', function(txt) {
+            console.log(txt)
+           // var username = $('#username').val()
+            var msg = $('<li>').text(username+": "+txt.msg).css('color',txt.color)
+            //console.log(username)
+            //console.log(msg)
+            $('#messages').append(msg)
+        })
+        ///////////////////////google map api
+        function initMap() {
+            // Create a map object and specify the DOM element for display.
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: -34.397, lng: 150.644},
+                scrollwheel: false,
+                zoom: 8
+            });
+        }
+        //////////////////////
+    script(async,defer,src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDPTdAwH5-WXSzY3FpLkaue20sB6_dyhE8&callback=initMap")

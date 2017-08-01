@@ -1,0 +1,21 @@
+extends layout
+block extraHeader
+    //script UPLOADCARE_PUBLIC_KEY = '028ece3ffa7b3c306f1b'
+    script(charset="utf-8" src="https://ucarecdn.com/libs/widget/3.1.1/uploadcare.full.min.js")
+block content
+    form(action='/student/update/'+student._id, method='POST')
+        label First Name
+        br
+        input(name='firstName', type='text', value=student.firstName)
+        br
+        label Last Name
+        br
+        input(name='lastName',type='text', value=student.lastName)
+        br
+        label Age
+        br
+        input(name='age',type='text', value=student.age)
+        br
+        input(type="hidden", role="uploadcare-uploader", name="content", data-public-key="028ece3ffa7b3c306f1b", data-images-only)
+        br
+        input(type='submit', value='Edit')
