@@ -13,14 +13,16 @@ router.get('/signup', function(req, res, next) {
 
 router.post('/signup', function (req, res, next) {
 
-  Student.register(new Student({username: req.body.username}), req.body.password, function(err, doc) {
-
+  Student.register(new Student({username: req.body.username, userAvatar: req.body.userAvatar}), req.body.password, function(err, doc) {
+    //console.log(req.body.userAvatar)
+    //console.log("Avatar Id")
     if (err) {
       return res.render('signup', { message: err})
     }
 
     passport.authenticate('local')(req, res, function() {
-      res.redirect('/chat')
+      //res.redirect('/chat')
+      res.render('chat', {user: req.user})
     })
 
   })

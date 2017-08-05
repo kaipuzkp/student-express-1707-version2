@@ -9,7 +9,8 @@ var studentSchema = new Schema ( {
     lastName: String,
     school: String,
     enrolled: Boolean,
-    age: Number
+    age: Number,
+    userAvatar: String
 } )
 
 studentSchema.plugin(passportLocalMongoose);

@@ -12,14 +12,31 @@ block style
 
         body {
             font: 13px Helvetica, Arial;
+            padding-left: 0;
+            padding-right: 0;
+            padding-top: 2px;
+            padding-bottom: 2px;
         }
+
+        #main {
+            width: 100%;
+        }
+
+        #fixRight {
+            float: right;
+            width: 40%;
+            height: 100%;
+        }
+
+
 
         form {
             background: #000;
             padding: 3px;
+            padding-bottom: 0px;
             position: fixed;
             bottom: 0;
-            width: 100%;
+            width: 40%;
         }
 
         form input {
@@ -34,6 +51,7 @@ block style
             background: rgb(130, 224, 255);
             border: none;
             padding: 10px;
+            border-radius: 10%;
         }
 
         #messages {
@@ -45,58 +63,249 @@ block style
         #messages li {
             padding: 5px 10px;
         }
+        #map{
+            width: 60%;
+            height: 100%;
+            float: left;
+            position: absolute;
+        }
+
+        #markerLayer img {
+            border: 2px solid red !important;
+            border-radius: 50%;
+        }
+
+        #username{
+            display:inline-block;
+        }
+
+        input {
+            margin-bottom: 2px;
+
+
+        }
+        .clear{
+            clear:both;
+        }
+
+        .label {
+            border: 2px solid blue !important;
+            border-radius: 50%;
+        }
 
         /*#messages li:nth-child(odd) {*/
             /*background: #eee;*/
         /*}*/
 
 block content
-    if (user)
-        p#username=user.username
-        a(href='/users/logout') Logout
-    ul#messages
-    div(id="map")
-    form(action="")
-        input#m(autocomplete="off" required)
-        button Send
+    div#main
+        div#map
+        div#fixRight
+            if (user)
+                img#useravatar(src=user.userAvatar)
+                p#username=user.username
+                a(href='/users/logout') Logout
+
+            ul#messages
+
+            form(action="")
+                input#m(autocomplete="off" required)
+                button Send
+        div.clear
 
 block script
     script(src="https://code.jquery.com/jquery-1.11.1.js")
     script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js")
+    script(src="/javascripts/randomColor.js")
+    script(async,defer,src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDPTdAwH5-WXSzY3FpLkaue20sB6_dyhE8&callback=initMap")
     script.
         var username = $('#username').text()
+        var useravatar=document.getElementById("useravatar").src
         //console.log(username)
-        function getRandomColor() {
-            var letters = '0123456789ABCDEF';
-            var color = '#';
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
+        //function getRandomColor() {
+            //var letters = '0123456789ABCDEF';
+            //var color = '#';
+            //for (var i = 0; i < 6; i++) {
+                //color += letters[Math.floor(Math.random() * 16)];
+            //}
+            //return color;
+        //}
+
         var socket = io();
+        /////////////////////checkOnline
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var upos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            socket.emit('login',{name:username,avatar:useravatar,pos:upos});
+        })
+
+        socket.on('login',function(obj){
+
+        });
+        /////////////////////////////////////
+
         var textColor = getRandomColor();
         $('form').submit(function(){
-            socket.emit('chat', { msg : $('#m').val(), color:textColor});
+            socket.emit('chat', { name:username,msg : $('#m').val(), color:textColor});
             $('#m').val('');
             return false;
         })
         socket.on('chat broadcast', function(txt) {
             console.log(txt)
-           // var username = $('#username').val()
-            var msg = $('<li>').text(username+": "+txt.msg).css('color',txt.color)
+            //var userName = $('#username').text()
+            var msg = $('<li>').text(txt.name+": "+txt.msg).css('color',txt.color)
             //console.log(username)
             //console.log(msg)
             $('#messages').append(msg)
         })
         ///////////////////////google map api
+        var map;
         function initMap() {
-            // Create a map object and specify the DOM element for display.
-            var map = new google.maps.Map(document.getElementById('map'), {
+            map = new google.maps.Map(document.getElementById('map'), {
                 center: {lat: -34.397, lng: 150.644},
-                scrollwheel: false,
-                zoom: 8
+                zoom: 20
             });
+            //infoWindow = new google.maps.InfoWindow;
+
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    var pos1={
+                        lat:49.228258,
+                        lng:-123.006374
+                    };
+                    socket.emit('pos',{pos:pos, avatar:useravatar,name:username});
+
+                    socket.on('pos broadcast', function (loc) {
+
+                        var onlineList=loc.onlineList;
+                        var onlinePosList=loc.onlinePosList;
+                        var onlineAvaList=loc.onlineAvaList;
+                        var memberList = loc.memberList;
+                        var memberPosList = loc.memberPosList;
+                        var memberAvaList = loc.memberAvaList;
+
+                        console.log(onlineList);
+                        console.log(onlinePosList);
+                        console.log(onlineAvaList);
+
+                        console.log("member:::::::::::::;");
+                        console.log(memberList);
+                        console.log(memberPosList);
+                        console.log(memberAvaList);
+                        console.log(memberPosList);
+
+
+                        //console.log(a);
+                        //console.log(onlineOrderList[0]);
+                        for (var key in memberList) {
+                            if (memberList.hasOwnProperty(key)){
+                                console.log(key, memberList[key]);
+                                if(key in onlineList){
+                                    console.log("Yes");
+                                    var usericon = {
+                                        url: memberAvaList[key],
+                                        size: new google.maps.Size(60, 60),
+                                        scaledSize: new google.maps.Size(40, 40),
+                                        origin: new google.maps.Point(0, 0)
+                                    }
+                                    var marker1 = new google.maps.Marker({
+                                        position: onlinePosList[key],
+                                        icon: usericon,
+                                        map: map,
+                                        optimized: false
+                                    })
+                                }
+                                else{
+                                    var usericon = {
+                                        url: memberAvaList[key],
+                                        size: new google.maps.Size(60, 60),
+                                        scaledSize: new google.maps.Size(40, 40),
+                                        origin: new google.maps.Point(0, 0)
+                                    }
+                                    var marker1 = new google.maps.Marker({
+                                        position: memberPosList[key],
+                                        icon:usericon,
+                                        map: map,
+                                        optimized: false,
+                                        opacity: 0.3
+                                    })
+                                }
+                                //var posi=onlinePosList[key];
+                                //console.log(posi);
+                            }
+
+                        }
+                        // var username = $('#username').val()
+                        //var guestIcon={
+                            //url: loc.avatar,
+                            //size: new google.maps.Size(60, 60),
+                            //scaledSize: new google.maps.Size(40, 40),
+                            //origin: new google.maps.Point(0, 0)
+
+                        //}
+                        //var marker2 = new google.maps.Marker({
+                           // position: loc.pos,
+                            //icon: guestIcon,
+                            //map: map,
+                            //optimized: false
+
+                        //});
+
+                    })
+
+
+                    //infoWindow.open(map);
+                    map.setCenter(pos);
+                    var iconImg = {
+                        //url: "https://ucarecdn.com/dc11f15e-d2f6-4cab-895b-333541bd595a/picturedefault.png",
+                        url: useravatar,
+                        size: new google.maps.Size(60, 60),
+                        scaledSize: new google.maps.Size(40, 40),
+                        origin: new google.maps.Point(0, 0)
+                    }
+                    var marker = new google.maps.Marker({
+                        position: pos,
+                        icon: iconImg,
+                        map: map,
+                        optimized: false
+
+                    });
+                    //var marker1 = new google.maps.Marker({
+                        //position: pos1,
+                        //icon: iconImg,
+                       // map: map,
+                        //optimized: false
+
+                    //});
+
+                    var myoverlay = new google.maps.OverlayView();
+
+                    myoverlay.draw = function () {
+
+                        this.getPanes().markerLayer.id = 'markerLayer';
+
+                    };
+
+                    myoverlay.setMap(map);
+
+                }, function () {
+                    handleLocationError(true, infoWindow, map.getCenter());
+                });
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
         }
+
+
+
+
         //////////////////////
-    script(async,defer,src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDPTdAwH5-WXSzY3FpLkaue20sB6_dyhE8&callback=initMap")

@@ -8,12 +8,15 @@ block content
   table
     tr
       th SNUM
+      th Avatar
       th First Name
       th Last Name
       th Age
     each student,i in students
       tr
-        td=i
+        td=i+1
+        td
+          img(id="avatar"+i).avatar(src=student.userAvatar)
         td
           a(href='/student/'+student._id)=student.firstName
         td=student.lastName
@@ -24,3 +27,17 @@ block content
           a#del(href='/student/delete/' + student._id)
             img(src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqAdB8RC5Of2VndsNKMYUKq0CjpdfoaAclyqFzTD2Erp46sfDG")
   a(href='/student/new') New
+
+  block script
+      script(src="https://code.jquery.com/jquery-1.11.1.js")
+      script(src="/javascripts/randomColor.js")
+      script.
+
+          var len = $(".avatar").length;
+          console.log(len);
+          for(i=0; i<$('.avatar').length;i++) {
+              var bColor = getRandomColor();
+              $('#avatar'+i).css("border-color", bColor);
+              $('#avatar'+i).css("border-style", 'solid');
+              $('#avatar'+i).css("border-width", '2px');
+          }

@@ -1,5 +1,6 @@
 body {
   padding: 50px;
+
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -23,3 +24,22 @@ input {
   height:25px;
 
 }
+.avatar{
+  width:75px;
+  height:75px;
+  border-radius:50%;
+  /*border: 2px; /*solid #b2b2b2;*/
+}
+#useravatar{
+  width:25px;
+  height:25px;
+  border-radius:50%;
+}
+/*#markerLayer img{*/
+  /*border: 1px solid red !important;*/
+  /*border-radius: 50%;*/
+/*}*/
+/*[title="spot"] img{*/
+  /*border: 2px solid blue !important;*/
+  /*border-radius: 50%;*/
+/*}*/

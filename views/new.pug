@@ -1,4 +1,7 @@
 extends layout
+block extraHeader
+    script(src="/javascripts/uploadPbkey.js")
+    script(charset="utf-8" src="https://ucarecdn.com/libs/widget/3.1.1/uploadcare.full.min.js")
 
 block content
     form(action='/student/new', method='POST')
@@ -13,5 +16,7 @@ block content
         label Age
         br
         input(name='age',type='text', placeholder='Age')
+        br
+        input(type="hidden" role="uploadcare-uploader" name="userAvatar" data-clearable = "true" data-images-only)
         br
         input(type='submit', value='Add')
