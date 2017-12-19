@@ -25,7 +25,7 @@ var users = require('./routes/users');
 var chat = require('./routes/chat');
 var index = require('./routes/index');
 
-mongoose.connect('mongodb://nino:123@ds127173.mlab.com:27173/hackhub');
+mongoose.connect('mongodb://');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
